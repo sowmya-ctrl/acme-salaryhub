@@ -28,7 +28,11 @@ DESIGNATIONS = [
 ]
 
 
-def seed_employees():
+EMPLOYEE_COUNT = 10_000
+BATCH_SIZE = 1000
+
+
+def seed_employees(total: int = EMPLOYEE_COUNT):
     db = SessionLocal()
     rng = random.Random(42)
 
@@ -48,10 +52,10 @@ def seed_employees():
 
         start_date = date(2018, 1, 1)
 
-        for batch_start in range(1, 10001, 1000):
+        for batch_start in range(1, total + 1, BATCH_SIZE):
             employees = []
 
-            for number in range(batch_start, min(batch_start + 1000, 10001)):
+            for number in range(batch_start, min(batch_start + BATCH_SIZE, total + 1)):
                 employee_code = f"ACME{number:05d}"
 
                 if employee_code in existing_codes:
@@ -85,10 +89,10 @@ def seed_employees():
                 db.add_all(employees)
                 db.commit()
 
-            print(f"Processed employees up to {min(batch_start + 999, 10000)}")
+            print(f"Processed employees up to {min(batch_start + BATCH_SIZE - 1, total)}")
 
-        total = db.query(Employee).count()
-        print(f"Employee seeding completed. Total employees: {total}")
+        seeded = db.query(Employee).count()
+        print(f"Employee seeding completed. Total employees: {seeded}")
 
     except Exception:
         db.rollback()

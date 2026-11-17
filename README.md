@@ -43,6 +43,7 @@ Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your environment. There is no 
 ## Tests
 ```bash
 cd backend && python -m pytest -q      # in-memory SQLite, no database needed, a few seconds
+cd backend && python -m pytest -m slow # also seeds the full 10,000 employees (about 8 s)
 cd frontend && npm test                # Vitest + React Testing Library
 ```
 

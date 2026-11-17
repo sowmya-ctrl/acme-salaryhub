@@ -13,9 +13,11 @@ import {
   ListItemText,
   TextField,
   Toolbar,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import SearchIcon from '@mui/icons-material/Search'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
@@ -23,7 +25,18 @@ import InsightsIcon from '@mui/icons-material/Insights'
 import PaymentsIcon from '@mui/icons-material/Payments'
 
 export const DRAWER_WIDTH = 220
+export const COLLAPSED_WIDTH = 68
+const STORAGE_KEY = 'salaryhub.sidebarCollapsed'
 const NAVY = '#0b1f4d'
+
+// Remember the choice, but never fail if storage is unavailable (private mode, blocked cookies).
+const loadCollapsed = () => {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
 
 export const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: <DashboardIcon />, title: 'Dashboard', subtitle: 'Overview of your workforce and compensation' },
@@ -33,11 +46,23 @@ export const NAV_ITEMS = [
 
 function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(loadCollapsed)
   const [query, setQuery] = useState('')
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const current = NAV_ITEMS.find((item) => item.to === pathname) ?? NAV_ITEMS[0]
   const isDashboard = current.to === '/'
+  const sidebarWidth = collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH
+
+  const toggleCollapsed = () => {
+    const next = !collapsed
+    setCollapsed(next)
+    try {
+      window.localStorage.setItem(STORAGE_KEY, String(next))
+    } catch {
+      /* the preference just won't persist */
+    }
+  }
 
   const search = (event) => {
     event.preventDefault()
@@ -46,51 +71,71 @@ function AppLayout() {
     setMobileOpen(false)
   }
 
-  const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: NAVY, color: '#fff' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2.5, py: 2 }}>
+  // compact = icon-only rail (desktop, collapsed). The mobile drawer is always full width.
+  const renderDrawer = (compact) => (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: NAVY, color: '#fff', overflowX: 'hidden' }}>
+      <Box
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: compact ? 'center' : 'flex-start', gap: 1.5, px: compact ? 0 : 2.5, py: 2 }}
+      >
         <PaymentsIcon />
-        <Typography variant="body1" sx={{ fontWeight: 700, lineHeight: 1.15 }}>
-          ACME
-          <br />
-          SalaryHub
-        </Typography>
+        {!compact && (
+          <Typography variant="body1" sx={{ fontWeight: 700, lineHeight: 1.15 }}>
+            ACME
+            <br />
+            SalaryHub
+          </Typography>
+        )}
       </Box>
 
       <List component="nav" aria-label="Main navigation" sx={{ px: 1.5 }}>
         {NAV_ITEMS.map((item) => (
-          <ListItemButton
-            key={item.to}
-            component={NavLink}
-            to={item.to}
-            end
-            selected={item.to === current.to}
-            onClick={() => setMobileOpen(false)}
-            sx={{
-              borderRadius: 2,
-              mb: 0.5,
-              py: 0.75,
-              color: 'rgba(255,255,255,0.8)',
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
-              '&.Mui-selected, &.Mui-selected:hover': { bgcolor: '#2563eb', color: '#fff' },
-            }}
-          >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} />
-          </ListItemButton>
+          <Tooltip key={item.to} title={compact ? item.label : ''} placement="right">
+            <ListItemButton
+              component={NavLink}
+              to={item.to}
+              end
+              selected={item.to === current.to}
+              onClick={() => setMobileOpen(false)}
+              aria-label={item.label}
+              sx={{
+                borderRadius: 2,
+                mb: 0.5,
+                py: 0.75,
+                justifyContent: compact ? 'center' : 'flex-start',
+                color: 'rgba(255,255,255,0.8)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+                '&.Mui-selected, &.Mui-selected:hover': { bgcolor: '#2563eb', color: '#fff' },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'inherit', minWidth: compact ? 0 : 36 }}>{item.icon}</ListItemIcon>
+              {!compact && <ListItemText primary={item.label} />}
+            </ListItemButton>
+          </Tooltip>
         ))}
       </List>
 
-      <Box sx={{ mt: 'auto', p: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+      <Box
+        sx={{
+          mt: 'auto',
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: compact ? 'center' : 'flex-start',
+          gap: 1.5,
+          borderTop: '1px solid rgba(255,255,255,0.12)',
+        }}
+      >
         <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.18)', width: 32, height: 32, fontSize: 12 }}>HR</Avatar>
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            HR Manager
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-            ACME Corp
-          </Typography>
-        </Box>
+        {!compact && (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              HR Manager
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              ACME Corp
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Box>
   )
@@ -101,7 +146,12 @@ function AppLayout() {
         position="fixed"
         color="transparent"
         elevation={0}
-        sx={{ width: { md: `calc(100% - ${DRAWER_WIDTH}px)` }, ml: { md: `${DRAWER_WIDTH}px` }, bgcolor: '#f3f6fb' }}
+        sx={{
+          width: { md: `calc(100% - ${sidebarWidth}px)` },
+          ml: { md: `${sidebarWidth}px` },
+          bgcolor: '#f3f6fb',
+          transition: 'width 200ms, margin 200ms',
+        }}
       >
         <Toolbar variant="dense">
           <IconButton
@@ -112,6 +162,17 @@ function AppLayout() {
           >
             <MenuIcon />
           </IconButton>
+          <Tooltip title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+            <IconButton
+              edge="start"
+              aria-label={collapsed ? 'expand sidebar' : 'collapse sidebar'}
+              aria-pressed={collapsed}
+              onClick={toggleCollapsed}
+              sx={{ mr: 1, display: { xs: 'none', md: 'inline-flex' } }}
+            >
+              {collapsed ? <MenuIcon /> : <MenuOpenIcon />}
+            </IconButton>
+          </Tooltip>
           <Box component="form" onSubmit={search} sx={{ width: '100%', maxWidth: 440 }}>
             <TextField
               fullWidth
@@ -135,7 +196,7 @@ function AppLayout() {
         </Toolbar>
       </AppBar>
 
-      <Box component="aside" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
+      <Box component="aside" sx={{ width: { md: sidebarWidth }, flexShrink: { md: 0 }, transition: 'width 200ms' }}>
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -143,20 +204,23 @@ function AppLayout() {
           ModalProps={{ keepMounted: true }}
           sx={{ display: { xs: 'block', md: 'none' }, '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 0 } }}
         >
-          {drawer}
+          {renderDrawer(false)}
         </Drawer>
         <Drawer
           variant="permanent"
           open
-          sx={{ display: { xs: 'none', md: 'block' }, '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 0 } }}
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            '& .MuiDrawer-paper': { width: sidebarWidth, border: 0, transition: 'width 200ms', overflowX: 'hidden' },
+          }}
         >
-          {drawer}
+          {renderDrawer(collapsed)}
         </Drawer>
       </Box>
 
       <Box
         component="main"
-        sx={{ flexGrow: 1, minWidth: 0, height: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', p: { xs: 2, md: 2 } }}
+        sx={{ flexGrow: 1, minWidth: 0, height: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', p: 2 }}
       >
         <Toolbar variant="dense" />
         <Box sx={{ mb: 1.5 }}>

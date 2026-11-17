@@ -16,6 +16,7 @@ vi.mock('./components/SalaryAnalytics', () => ({ default: () => <div>salary anal
 
 beforeEach(() => {
   window.location.hash = '#/'
+  window.localStorage.clear()
 })
 
 const nav = () => screen.getAllByRole('navigation', { name: /main navigation/i })[0]
@@ -52,4 +53,25 @@ it('?add=1 opens the employees page ready to add', async () => {
   render(<App />)
 
   expect(await screen.findByText(/add=\[true\]/)).toBeTruthy()
+})
+
+it('sidebar toggle collapses to icons only, remembers the choice, and expands again', async () => {
+  const { unmount } = render(<App />)
+  await screen.findByText('dashboard page')
+  expect(screen.getAllByText('Salary Analytics').length).toBeGreaterThan(0) // labels visible
+
+  await userEvent.click(screen.getByRole('button', { name: 'collapse sidebar' }))
+
+  // labels hidden but the links are still there (icons only)
+  expect(screen.queryAllByText('Salary Analytics').length).toBeLessThan(2)
+  expect(nav().querySelector('a[href="#/analytics"]')).toBeTruthy()
+  expect(window.localStorage.getItem('salaryhub.sidebarCollapsed')).toBe('true')
+
+  unmount()
+  render(<App />) // a fresh load stays collapsed
+  await screen.findByText('dashboard page')
+  expect(screen.getByRole('button', { name: 'expand sidebar' })).toBeTruthy()
+
+  await userEvent.click(screen.getByRole('button', { name: 'expand sidebar' }))
+  expect(screen.getByRole('button', { name: 'collapse sidebar' })).toBeTruthy()
 })

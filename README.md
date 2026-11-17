@@ -14,6 +14,15 @@ Salary management for an organisation of ~10,000 employees across several countr
 * **The prompts used with the AI assistant, with outcomes and corrections:** [docs/prompts.md](docs/prompts.md)
 * **How AI was used, trade-offs, performance:** [docs/ai-usage.md](docs/ai-usage.md)
 
+## Screenshots
+| Login | Dashboard |
+|---|---|
+| ![Login page](screenshots/loginpage.png) | ![Dashboard](screenshots/dashboard.png) |
+
+| Employees | Salary analytics |
+|---|---|
+| ![Employee directory](screenshots/employees.png) | ![Salary analytics by department and currency](screenshots/salaryanalytics.png) |
+
 ## What it does
 * **Login / logout** for the HR manager; every data endpoint requires a token.
 * **Dashboard** on one screen: headcount, salary expenditure per currency, department and country distribution, quick actions.

@@ -1,10 +1,13 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import api from '../services/api'
 import DashboardPage from './DashboardPage'
+import { downloadFile } from '../services/download'
 
 vi.mock('../services/api', () => ({ default: { get: vi.fn() } }))
+vi.mock('../services/download', () => ({ downloadFile: vi.fn() }))
 // Recharts needs real layout to draw; its output is not what these tests are about.
 vi.mock('../components/SalaryCurrencyChart', () => ({ default: () => <div>currency chart</div> }))
 vi.mock('recharts', async (importOriginal) => ({
@@ -73,7 +76,26 @@ it('offers working quick actions', async () => {
 
   expect(screen.getByRole('link', { name: /add employee/i }).getAttribute('href')).toBe('/employees?add=1')
   expect(screen.getByRole('link', { name: /view salary analytics/i }).getAttribute('href')).toBe('/analytics')
-  expect(screen.getByRole('link', { name: /export report/i }).getAttribute('href')).toBe('/api/employees/export')
+})
+
+it('Export Report downloads the CSV through the authenticated client', async () => {
+  downloadFile.mockResolvedValue()
+  renderPage()
+  await screen.findByText('2 currencies')
+
+  await userEvent.click(screen.getByRole('button', { name: /export report/i }))
+
+  expect(downloadFile).toHaveBeenCalledWith('/employees/export', undefined, 'employees.csv')
+})
+
+it('shows an error when the export fails', async () => {
+  downloadFile.mockRejectedValue(new Error('nope'))
+  renderPage()
+  await screen.findByText('2 currencies')
+
+  await userEvent.click(screen.getByRole('button', { name: /export report/i }))
+
+  expect(await screen.findByText(/export failed/i)).toBeTruthy()
 })
 
 it('shows an error when the data cannot be loaded', async () => {

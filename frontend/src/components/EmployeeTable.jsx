@@ -27,6 +27,7 @@ import PaymentsIcon from '@mui/icons-material/Payments'
 import PersonOffIcon from '@mui/icons-material/PersonOff'
 import HowToRegIcon from '@mui/icons-material/HowToReg'
 import api from '../services/api'
+import { downloadFile } from '../services/download'
 import EmployeeFormDialog from './EmployeeFormDialog'
 import SalaryDialog from './SalaryDialog'
 
@@ -115,7 +116,8 @@ function EmployeeTable({ initialSearch = '', openAdd = false }) {
     reload()
   }
 
-  const exportUrl = `/api/employees/export?${new URLSearchParams(filters)}`
+  const exportCsv = () =>
+    downloadFile('/employees/export', filters, 'employees.csv').catch(() => setError('Unable to export the CSV.'))
 
   return (
     <Card elevation={2}>
@@ -125,7 +127,7 @@ function EmployeeTable({ initialSearch = '', openAdd = false }) {
             Employee Directory
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button startIcon={<DownloadIcon />} href={exportUrl} download>
+            <Button startIcon={<DownloadIcon />} onClick={exportCsv}>
               Export CSV
             </Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => setFormFor(null)}>

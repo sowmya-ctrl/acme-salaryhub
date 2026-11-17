@@ -23,6 +23,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import InsightsIcon from '@mui/icons-material/Insights'
 import PaymentsIcon from '@mui/icons-material/Payments'
+import LogoutIcon from '@mui/icons-material/Logout'
+import { useAuth } from '../auth/AuthContext'
 
 export const DRAWER_WIDTH = 220
 export const COLLAPSED_WIDTH = 68
@@ -38,6 +40,14 @@ const loadCollapsed = () => {
   }
 }
 
+const initials = (name = '') =>
+  name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('') || 'HR'
+
 export const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: <DashboardIcon />, title: 'Dashboard', subtitle: 'Overview of your workforce and compensation' },
   { to: '/employees', label: 'Employees', icon: <PeopleIcon />, title: 'Employees', subtitle: 'Find, add and manage employees and their salaries' },
@@ -48,6 +58,7 @@ function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(loadCollapsed)
   const [query, setQuery] = useState('')
+  const { user, logout } = useAuth()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const current = NAV_ITEMS.find((item) => item.to === pathname) ?? NAV_ITEMS[0]
@@ -125,17 +136,26 @@ function AppLayout() {
           borderTop: '1px solid rgba(255,255,255,0.12)',
         }}
       >
-        <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.18)', width: 32, height: 32, fontSize: 12 }}>HR</Avatar>
         {!compact && (
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              HR Manager
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-              ACME Corp
-            </Typography>
-          </Box>
+          <>
+            <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.18)', width: 32, height: 32, fontSize: 12 }}>
+              {initials(user?.full_name)}
+            </Avatar>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+                {user?.full_name}
+              </Typography>
+              <Typography variant="caption" noWrap sx={{ color: 'rgba(255,255,255,0.6)', display: 'block' }}>
+                HR Manager
+              </Typography>
+            </Box>
+          </>
         )}
+        <Tooltip title="Log out" placement="right">
+          <IconButton aria-label="log out" onClick={logout} sx={{ color: 'rgba(255,255,255,0.8)' }}>
+            <LogoutIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </Box>
     </Box>
   )

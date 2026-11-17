@@ -14,6 +14,7 @@ ACME's HR manager currently keeps salary data for ~10,000 employees in country-s
 | Analytics | Min / average / max / total *current* net pay by department or country, active employees by default |
 | Export | CSV of the current filtered view, including current salary |
 | Data | Seed script for 10,000 employees across 5 countries / 5 departments, deterministic (fixed random seed) and idempotent |
+| Access control | Email + password login (bcrypt, signed 8-hour tokens); every HR data endpoint requires a valid token; logout; first user created by the seed script from environment variables |
 | Delivery | Single Docker image (API + built UI), Render blueprint, automated backend and frontend tests |
 
 Net pay = basic + allowances + bonus - deductions.
@@ -22,8 +23,8 @@ Net pay = basic + allowances + bonus - deductions.
 | Not built | Reason |
 |---|---|
 | **Currency conversion / "org-wide total"** | Needs a trustworthy, dated exchange-rate source; a wrong rate silently produces wrong answers. We show every figure *per currency* and never add INR to USD. First follow-up feature. |
-| **Authentication / roles** | Single trusted persona, internal tool. For a real rollout this comes first (SSO + roles + audit log), before real salary data goes in. Salary data is sensitive, so the demo uses synthetic data only. |
-| **Audit log** | Salary history already answers "what changed and when" for salaries; a general audit trail (who changed what) needs authentication first. |
+| **SSO, multiple roles / permissions, password reset, user management UI** | One persona (HR manager), so one role. Basic login protects the data; the rest matters once more than one kind of user exists. Users are created by the seed script, not in the UI. Salary data is sensitive, so the demo still uses synthetic data only. |
+| **Audit log** | Salary history already answers "what changed and when" for salaries. A general "who changed what" trail is the natural next step now that users exist. |
 | **CSV import** | Valuable for migrating from Excel, but needs a validation / preview / error-report flow to be safe. Out of scope for the time box; the seed script covers bulk loading for the demo. |
 | **AI natural-language assistant** | Risk of confident wrong answers on salary data. Analytics endpoints are structured so an assistant could call them as controlled tools later. |
 | **Payroll, tax, payslips, attendance, bank integration** | Different problem (executing payments); not needed to answer pay questions. |

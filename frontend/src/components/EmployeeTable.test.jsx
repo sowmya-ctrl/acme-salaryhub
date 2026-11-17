@@ -3,7 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import api from '../services/api'
 import EmployeeTable from './EmployeeTable'
+import { downloadFile } from '../services/download'
 
+vi.mock('../services/download', () => ({ downloadFile: vi.fn() }))
 vi.mock('../services/api', () => ({ default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() } }))
 
 const employee = {
@@ -112,4 +114,15 @@ it('offers Activate (not Deactivate) for an inactive employee and reactivates vi
   await userEvent.click(activateButton)
 
   await waitFor(() => expect(api.patch).toHaveBeenCalledWith('/employees/2', { status: 'active' }))
+})
+
+it('exports the CSV for the currently applied filters', async () => {
+  mockApi()
+  downloadFile.mockResolvedValue()
+  render(<EmployeeTable initialSearch="asha" />)
+  await screen.findByText('ACME00001')
+
+  await userEvent.click(screen.getByRole('button', { name: /export csv/i }))
+
+  expect(downloadFile).toHaveBeenCalledWith('/employees/export', { search: 'asha' }, 'employees.csv')
 })

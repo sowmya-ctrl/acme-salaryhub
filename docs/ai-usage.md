@@ -24,6 +24,19 @@ Claude Code (agentic CLI in VS Code) was used throughout, with me steering scope
 | MUI v9 `Grid item xs=` props are legacy and silently lay out incorrectly | Migrated to `size={{ ... }}` |
 | Hosted Postgres URLs use `postgres://`, which SQLAlchemy + psycopg3 rejects | Normalised in `database.py` |
 
+## Authentication decisions
+| Decision | Why |
+|---|---|
+| `bcrypt` directly, not `passlib` | The repo listed `passlib[bcrypt]`, but passlib 1.7.4 is incompatible with bcrypt 5 (installed here); using bcrypt avoids a runtime failure and a dead dependency |
+| Short-lived stateless JWT (8 h) | Simple and needs no session table. **Cost: logout is client-side only**; a stolen token works until it expires. Fix when it matters: a token denylist or short access tokens plus refresh tokens |
+| Token in `sessionStorage` | Survives refresh, ends with the tab. Any script on the page can read it (XSS). An httpOnly cookie would be safer but needs CSRF protection, so it was left as a follow-up |
+| One generic 401 message + dummy hash check for unknown emails | Does not reveal which emails have accounts, and response time does not either |
+| Guard applied once, at router level | Individual routes cannot forget it; a parametrised test asserts all 17 data routes return 401 anonymously and with a forged token |
+| No default password; first user from `ADMIN_PASSWORD` | A default credential in a public repo is a vulnerability |
+| CSV export via authenticated fetch + blob | A plain download link cannot send the Authorization header, so the existing links would have broken |
+
+**Known gaps (deliberate):** no login rate limiting or lockout (a reverse proxy / `slowapi` would add it), no password reset or change, no roles beyond "logged in".
+
 ## Trade-offs
 * **Net pay formula** (basic + allowances + bonus - deductions) is computed in SQL so aggregates and per-employee values agree.
 * **No currency conversion.** Wrong silently is worse than absent; documented as the first follow-up.

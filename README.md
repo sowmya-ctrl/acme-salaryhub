@@ -16,8 +16,12 @@ Prerequisites: Python 3.12, Node 20+, a PostgreSQL database.
 cd backend
 python -m venv venv && venv/Scripts/activate        # source venv/bin/activate on macOS/Linux
 pip install -r requirements.txt
-echo "DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/acme_salaryhub" > .env
-python -m app.seed.run_all                           # creates tables + 10,000 employees (idempotent)
+# backend/.env (never commit it):
+#   DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/acme_salaryhub
+#   JWT_SECRET=<long random string>      # python -c "import secrets; print(secrets.token_urlsafe(48))"
+#   ADMIN_EMAIL=hr@acme.example
+#   ADMIN_PASSWORD=<at least 8 characters>
+python -m app.seed.run_all                           # tables + 10,000 employees + your login (idempotent)
 uvicorn app.main:app --reload                        # http://127.0.0.1:8000/docs
 
 # frontend (separate terminal; proxies /api to :8000)
@@ -25,6 +29,13 @@ cd frontend
 npm install
 npm run dev                                          # http://localhost:5173
 ```
+
+## Signing in
+Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your environment. There is no default password. The user is created by the seed script; to add it to an already-seeded database run `python -m app.seed.seed_admin`. An existing user is never overwritten.
+
+* Passwords are stored as bcrypt hashes; sessions are signed JWTs valid for 8 hours (`JWT_EXPIRE_HOURS`).
+* Set `JWT_SECRET`. If it is missing the server generates a temporary one, and everyone is logged out on each restart.
+* Logout removes the token in the browser. Tokens are stateless, so the server cannot cancel one early (see [docs/ai-usage.md](docs/ai-usage.md)).
 
 ## Tests
 ```bash
@@ -37,11 +48,12 @@ One Docker image serves the API and the built UI (`Dockerfile`). `render.yaml` i
 
 1. Push the repo to GitHub.
 2. In Render: New → Blueprint → select the repo.
-3. Open the generated URL.
+3. Open the generated URL and sign in as `hr@acme.example`. Render generates `ADMIN_PASSWORD` and `JWT_SECRET`; read the password in the service's **Environment** tab and share it with reviewers privately, not in the repo.
 
 ## API overview
 | Endpoint | Purpose |
 |---|---|
+| `POST /api/auth/login`, `GET /api/auth/me` | Sign in / current user. **Every other `/api/*` endpoint requires `Authorization: Bearer <token>`** |
 | `GET /api/employees/` | Search, filter, paginate |
 | `GET /api/employees/count` | Count for the same filters |
 | `POST /api/employees/`, `PATCH /{id}`, `DELETE /{id}` | Create, update, deactivate (history preserved) |

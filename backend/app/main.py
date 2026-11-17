@@ -10,7 +10,6 @@ from app.routers.salaries import router as salary_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.reference import router as reference_router
 from app.routers.analytics import router as analytics_router
-from app.routers.reports import router as reports_router
 
 app = FastAPI(
     title = "ACME SalaryHub API",
@@ -24,7 +23,6 @@ app.include_router(salary_router)
 app.include_router(dashboard_router)
 app.include_router(reference_router)
 app.include_router(analytics_router)
-app.include_router(reports_router)
 
 
 @app.get("/api/status")

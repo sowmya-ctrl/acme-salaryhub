@@ -34,10 +34,10 @@ function SalaryAnalytics() {
   return (
     <Card elevation={2}>
       <CardContent>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Salary analytics (active employees)
         </Typography>
-        <Typography variant="body2" color="text.secondary" mb={2}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Current net pay. Currencies are never combined, so each group is split by currency.
         </Typography>
         <ToggleButtonGroup

@@ -33,19 +33,42 @@ it('renders employees with department and country names', async () => {
   expect(screen.getByText('India')).toBeTruthy()
 })
 
-it('sends the search term to both the list and the count endpoints', async () => {
+it('applies the search only when Search is clicked, to both list and count', async () => {
   mockApi()
   render(<EmployeeTable />)
   await screen.findByText('ACME00001')
+  const listCalls = () => api.get.mock.calls.filter(([url]) => url === '/employees/')
+  const before = listCalls().length
 
   await userEvent.type(screen.getByLabelText(/search by name/i), 'asha')
+  expect(listCalls()).toHaveLength(before) // typing alone must not query
+
+  await userEvent.click(screen.getByRole('button', { name: /^search$/i }))
+
+  await waitFor(() => expect(listCalls()).toHaveLength(before + 1))
+  const [, listConfig] = listCalls().at(-1)
+  const [, countConfig] = api.get.mock.calls.filter(([url]) => url === '/employees/count').at(-1)
+  expect(listConfig.params.search).toBe('asha')
+  expect(countConfig.params.search).toBe('asha')
+  expect(listConfig.params.skip).toBe(0)
+})
+
+it('reset clears the applied filters', async () => {
+  mockApi()
+  render(<EmployeeTable />)
+  await screen.findByText('ACME00001')
+  await userEvent.type(screen.getByLabelText(/search by name/i), 'asha{Enter}')
+  await waitFor(() =>
+    expect(api.get.mock.calls.filter(([u, c]) => u === '/employees/' && c.params.search === 'asha')).toHaveLength(1),
+  )
+
+  await userEvent.click(screen.getByRole('button', { name: /reset/i }))
 
   await waitFor(() => {
-    const calls = api.get.mock.calls.filter(([url]) => url === '/employees/' || url === '/employees/count')
-    const last = calls.slice(-2)
-    expect(last.map(([url]) => url).sort()).toEqual(['/employees/', '/employees/count'])
-    last.forEach(([, config]) => expect(config.params.search).toBe('asha'))
+    const last = api.get.mock.calls.filter(([u]) => u === '/employees/').at(-1)[1]
+    expect(last.params.search).toBeUndefined()
   })
+  expect(screen.getByLabelText(/search by name/i).value).toBe('')
 })
 
 it('shows an empty state when nothing matches', async () => {

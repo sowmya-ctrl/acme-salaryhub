@@ -63,7 +63,7 @@ function EmployeeFormDialog({ employee, departments, countries, onClose, onSaved
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth component="form" onSubmit={submit}>
       <DialogTitle>{editing ? `Edit ${employee.employee_code}` : 'Add employee'}</DialogTitle>
       <DialogContent>
-        <Stack spacing={2} mt={1}>
+        <Stack spacing={2} sx={{ mt: 1 }}>
           {error && <Alert severity="error">{error}</Alert>}
           <Stack direction="row" spacing={2}>
             <TextField label="First name" required fullWidth size="small" value={form.first_name} onChange={set('first_name')} />

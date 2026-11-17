@@ -10,7 +10,7 @@ function ChartCard({ title, subtitle, children }) {
       <CardContent
         sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, p: 2, '&:last-child': { pb: 2 } }}
       >
-        <Typography variant="subtitle1" fontWeight="bold">
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
           {title}
         </Typography>
         {subtitle && (

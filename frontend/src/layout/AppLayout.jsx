@@ -18,7 +18,6 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import InsightsIcon from '@mui/icons-material/Insights'
 import PaymentsIcon from '@mui/icons-material/Payments'
-import AssessmentIcon from '@mui/icons-material/Assessment'
 
 export const DRAWER_WIDTH = 240
 
@@ -26,7 +25,6 @@ export const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: <DashboardIcon />, title: 'HR Dashboard' },
   { to: '/employees', label: 'Employees', icon: <PeopleIcon />, title: 'Employees' },
   { to: '/analytics', label: 'Salary Analytics', icon: <InsightsIcon />, title: 'Salary Analytics' },
-  { to: '/reports', label: 'Reports', icon: <AssessmentIcon />, title: 'Employee Reports' },
 ]
 
 function AppLayout() {
@@ -38,7 +36,7 @@ function AppLayout() {
     <Box>
       <Toolbar sx={{ gap: 1 }}>
         <PaymentsIcon color="primary" />
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
           ACME SalaryHub
         </Typography>
       </Toolbar>
@@ -78,7 +76,7 @@ function AppLayout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" fontWeight="bold" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, flexGrow: 1 }}>
             {current.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">

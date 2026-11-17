@@ -99,7 +99,7 @@ function SalaryDialog({ employee, onClose }) {
           </TableBody>
         </Table>
 
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700 }}>
           Add salary revision
         </Typography>
         {error && (
@@ -107,7 +107,7 @@ function SalaryDialog({ employee, onClose }) {
             {error}
           </Alert>
         )}
-        <Box component="form" onSubmit={submit} display="flex" gap={2} flexWrap="wrap">
+        <Box component="form" onSubmit={submit} sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField label="Basic" type="number" size="small" required value={form.basic_salary} onChange={set('basic_salary')} />
           <TextField label="Allowances" type="number" size="small" value={form.allowances} onChange={set('allowances')} />
           <TextField label="Bonus" type="number" size="small" value={form.bonus} onChange={set('bonus')} />

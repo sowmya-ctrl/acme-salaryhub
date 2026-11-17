@@ -45,13 +45,13 @@ function DashboardPage() {
       {cards.map((card) => (
         <Card elevation={2} key={card.title}>
           <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {card.icon}
               <Box>
                 <Typography variant="body2" color="text.secondary">
                   {card.title}
                 </Typography>
-                <Typography variant="h4" fontWeight="bold">
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
                   {card.value.toLocaleString()}
                 </Typography>
               </Box>

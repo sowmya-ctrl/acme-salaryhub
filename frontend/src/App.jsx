@@ -3,7 +3,6 @@ import AppLayout from './layout/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import EmployeesPage from './pages/EmployeesPage'
 import AnalyticsPage from './pages/AnalyticsPage'
-import ReportsPage from './pages/ReportsPage'
 
 // HashRouter: deep links work when the built app is served as static files by FastAPI.
 function App() {
@@ -14,7 +13,6 @@ function App() {
           <Route index element={<DashboardPage />} />
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="reports" element={<ReportsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

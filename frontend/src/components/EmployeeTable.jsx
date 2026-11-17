@@ -6,11 +6,8 @@ import {
   CardContent,
   Chip,
   CircularProgress,
-  FormControl,
   IconButton,
-  InputLabel,
   MenuItem,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +20,7 @@ import {
   Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import SearchIcon from '@mui/icons-material/Search'
 import DownloadIcon from '@mui/icons-material/Download'
 import EditIcon from '@mui/icons-material/Edit'
 import PaymentsIcon from '@mui/icons-material/Payments'
@@ -31,16 +29,20 @@ import api from '../services/api'
 import EmployeeFormDialog from './EmployeeFormDialog'
 import SalaryDialog from './SalaryDialog'
 
+const EMPTY = { search: '', department_id: '', country_id: '', status: '' }
+
+/**
+ * Employee directory. Filters are edited in a draft and only applied when the user
+ * clicks Search (or presses Enter); paging and CSV export reuse the applied filters.
+ */
 function EmployeeTable() {
   const [employees, setEmployees] = useState([])
   const [departments, setDepartments] = useState([])
   const [countries, setCountries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [search, setSearch] = useState('')
-  const [departmentId, setDepartmentId] = useState('')
-  const [countryId, setCountryId] = useState('')
-  const [status, setStatus] = useState('')
+  const [draft, setDraft] = useState(EMPTY)
+  const [applied, setApplied] = useState(EMPTY)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [totalEmployees, setTotalEmployees] = useState(0)
@@ -48,12 +50,7 @@ function EmployeeTable() {
   const [salaryFor, setSalaryFor] = useState(null)
   const [reloadKey, setReloadKey] = useState(0)
 
-  const filters = {
-    search: search || undefined,
-    department_id: departmentId || undefined,
-    country_id: countryId || undefined,
-    status: status || undefined,
-  }
+  const filters = Object.fromEntries(Object.entries(applied).filter(([, v]) => v !== ''))
 
   useEffect(() => {
     Promise.all([api.get('/departments'), api.get('/countries')])
@@ -66,14 +63,13 @@ function EmployeeTable() {
 
   useEffect(() => {
     const controller = new AbortController()
-    const params = { ...filters }
     setLoading(true)
     Promise.all([
       api.get('/employees/', {
-        params: { ...params, skip: page * rowsPerPage, limit: rowsPerPage },
+        params: { ...filters, skip: page * rowsPerPage, limit: rowsPerPage },
         signal: controller.signal,
       }),
-      api.get('/employees/count', { params, signal: controller.signal }),
+      api.get('/employees/count', { params: filters, signal: controller.signal }),
     ])
       .then(([list, count]) => {
         setEmployees(list.data)
@@ -88,12 +84,20 @@ function EmployeeTable() {
       })
     return () => controller.abort()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, departmentId, countryId, status, page, rowsPerPage, reloadKey])
+  }, [applied, page, rowsPerPage, reloadKey])
 
   const reload = useCallback(() => setReloadKey((k) => k + 1), [])
+  const setField = (field) => (event) => setDraft({ ...draft, [field]: event.target.value })
 
-  const changeFilter = (setter) => (event) => {
-    setter(event.target.value)
+  const submit = (event) => {
+    event.preventDefault()
+    setApplied(draft)
+    setPage(0)
+  }
+
+  const reset = () => {
+    setDraft(EMPTY)
+    setApplied(EMPTY)
     setPage(0)
   }
 
@@ -103,18 +107,16 @@ function EmployeeTable() {
     reload()
   }
 
-  const exportUrl = `/api/employees/export?${new URLSearchParams(
-    Object.entries(filters).filter(([, v]) => v !== undefined),
-  )}`
+  const exportUrl = `/api/employees/export?${new URLSearchParams(filters)}`
 
   return (
     <Card elevation={2}>
       <CardContent>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6" fontWeight="bold">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             Employee Directory
           </Typography>
-          <Box display="flex" gap={1}>
+          <Box sx={{ display: 'flex', gap: 1 }}>
             <Button startIcon={<DownloadIcon />} href={exportUrl} download>
               Export CSV
             </Button>
@@ -124,47 +126,49 @@ function EmployeeTable() {
           </Box>
         </Box>
 
-        <TextField
-          fullWidth
-          size="small"
-          label="Search by name, employee ID or email"
-          value={search}
-          onChange={changeFilter(setSearch)}
-          sx={{ mb: 2 }}
-        />
-
-        <Box display="flex" gap={2} mb={3}>
-          <FormControl fullWidth size="small">
-            <InputLabel>Department</InputLabel>
-            <Select value={departmentId} label="Department" onChange={changeFilter(setDepartmentId)}>
-              <MenuItem value="">All Departments</MenuItem>
-              {departments.map((d) => (
-                <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth size="small">
-            <InputLabel>Country</InputLabel>
-            <Select value={countryId} label="Country" onChange={changeFilter(setCountryId)}>
-              <MenuItem value="">All Countries</MenuItem>
-              {countries.map((c) => (
-                <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth size="small">
-            <InputLabel>Status</InputLabel>
-            <Select value={status} label="Status" onChange={changeFilter(setStatus)}>
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="inactive">Inactive</MenuItem>
-            </Select>
-          </FormControl>
+        <Box
+          component="form"
+          onSubmit={submit}
+          sx={{
+            display: 'grid',
+            gap: 2,
+            mb: 3,
+            gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 1fr 1fr auto' },
+            alignItems: 'start',
+          }}
+        >
+          <TextField
+            size="small"
+            label="Search by name, employee ID or email"
+            value={draft.search}
+            onChange={setField('search')}
+          />
+          <TextField select size="small" label="Department" value={draft.department_id} onChange={setField('department_id')}>
+            <MenuItem value="">All departments</MenuItem>
+            {departments.map((d) => (
+              <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
+            ))}
+          </TextField>
+          <TextField select size="small" label="Country" value={draft.country_id} onChange={setField('country_id')}>
+            <MenuItem value="">All countries</MenuItem>
+            {countries.map((c) => (
+              <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+            ))}
+          </TextField>
+          <TextField select size="small" label="Status" value={draft.status} onChange={setField('status')}>
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="active">Active</MenuItem>
+            <MenuItem value="inactive">Inactive</MenuItem>
+          </TextField>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button type="submit" variant="contained" startIcon={<SearchIcon />}>
+              Search
+            </Button>
+            <Button onClick={reset}>Reset</Button>
+          </Box>
         </Box>
 
-        {error && <Typography color="error" mb={2}>{error}</Typography>}
+        {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
 
         {loading ? (
           <CircularProgress />
@@ -194,7 +198,7 @@ function EmployeeTable() {
                       <TableCell>{employee.employee_code}</TableCell>
                       <TableCell>
                         {employee.first_name} {employee.last_name}
-                        <Typography variant="caption" display="block" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                           {employee.email}
                         </Typography>
                       </TableCell>

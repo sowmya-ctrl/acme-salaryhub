@@ -35,7 +35,7 @@ Net pay = basic + allowances + bonus - deductions.
 * **Effective-dated salary records** (not an "updated salary" column) so history, back-dating and future-dated raises are first-class.
 * **Per-currency aggregation** everywhere, enforced in the backend, so the UI cannot get it wrong.
 * **Filtering logic lives in one function** shared by list, count and CSV export, so totals always match what is shown.
-* **Postgres in production, in-memory SQLite in tests**: tests are fast (<1 s), deterministic and independent of any seeded database.
+* **Postgres in production, in-memory SQLite in tests**: tests are fast (a couple of seconds), deterministic and independent of any seeded database.
 * **Server-side pagination and indexes** on filter columns (department, country, status) and salary foreign keys keep 10k-row screens responsive.
 
 ## Success criteria

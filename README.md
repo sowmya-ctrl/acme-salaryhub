@@ -3,7 +3,10 @@
 Salary management for an organisation of ~10,000 employees across several countries. Built for an HR manager who needs to maintain salary data and answer questions about how the organisation pays people.
 
 * **Requirements and scope decisions:** [docs/requirements.md](docs/requirements.md)
-* **How AI was used, prompts, trade-offs, performance:** [docs/ai-usage.md](docs/ai-usage.md)
+* **Architecture diagrams (system, data model, salary revision, login):** [docs/architecture.md](docs/architecture.md)
+* **Planning, product decisions and how the solution evolved:** [docs/design-notes.md](docs/design-notes.md)
+* **The prompts used with the AI assistant, with outcomes and corrections:** [docs/prompts.md](docs/prompts.md)
+* **How AI was used, trade-offs, performance:** [docs/ai-usage.md](docs/ai-usage.md)
 
 ## Stack
 FastAPI, SQLAlchemy, PostgreSQL, React (Vite), Material UI, Recharts, Pytest, Vitest + React Testing Library.
@@ -39,7 +42,7 @@ Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your environment. There is no 
 
 ## Tests
 ```bash
-cd backend && python -m pytest -q      # in-memory SQLite, no database needed, <1s
+cd backend && python -m pytest -q      # in-memory SQLite, no database needed, a few seconds
 cd frontend && npm test                # Vitest + React Testing Library
 ```
 

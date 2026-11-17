@@ -2,8 +2,7 @@ import { Box, Typography } from '@mui/material'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import ChartCard from './ChartCard'
-
-export const PALETTE = ['#2563eb', '#14b8a6', '#7c3aed', '#f97316', '#22c55e', '#ef4444']
+import { PALETTE } from './chartColors'
 
 /** Donut of headcount by department with a percentage legend. Data comes from the page. */
 function DepartmentChart({ data }) {

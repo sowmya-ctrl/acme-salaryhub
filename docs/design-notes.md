@@ -44,9 +44,10 @@ These changed because the first version was wrong for the user, not because the 
 * **Missing "Activate" button.** Inactive employees could not be reactivated. Added.
 
 ## 5. Testing strategy
-* **Backend (83 tests, ~2 s):** every test gets a fresh in-memory SQLite database with a 4-employee dataset whose expected values are easy to compute by hand (`tests/conftest.py`). No dependence on the seeded Postgres, no shared state, so tests are deterministic and order-independent.
+* **Backend (98 tests, about 3 s; 95% line coverage):** every test gets a fresh in-memory SQLite database with a 4-employee dataset whose expected values are easy to compute by hand (`tests/conftest.py`). No dependence on the seeded Postgres, no shared state, so tests are deterministic and order-independent.
 * **What is covered:** filters and pagination, CRUD, the revision rule (including "previous record closes the day before" and "future-dated raise is not current"), per-currency analytics, CSV content, and authentication (generic failures, expired and forged tokens, deactivated users, and **every data route rejecting anonymous requests**).
-* **Frontend (41 tests, Vitest + Testing Library):** behaviour the user sees: search applies only on click, reset, activate/deactivate, salary dialog validation messages, dashboard shows per-currency totals, login/logout/route protection, 401 handling, authenticated downloads, sidebar toggle.
+* **Frontend (50 tests; 92% line coverage; Vitest + Testing Library):** behaviour the user sees: search applies only on click, reset, activate/deactivate, salary dialog validation messages, dashboard shows per-currency totals, login/logout/route protection, 401 handling, authenticated downloads, sidebar toggle.
+* **Seed scripts are tested too:** small seeds for the rules (codes, currencies, idempotence, determinism), plus one `slow`-marked test that seeds the real 10,000 employees (about 8 s, excluded from the default run).
 * **Real-data check:** after tests passed, endpoints were exercised against the seeded 10,000-row Postgres, because small fixtures cannot reveal performance or data-shape problems.
 
 ## 6. Honest limitations

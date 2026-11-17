@@ -24,10 +24,10 @@ import PeopleIcon from '@mui/icons-material/People'
 import InsightsIcon from '@mui/icons-material/Insights'
 import PaymentsIcon from '@mui/icons-material/Payments'
 import LogoutIcon from '@mui/icons-material/Logout'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 
-export const DRAWER_WIDTH = 220
-export const COLLAPSED_WIDTH = 68
+const DRAWER_WIDTH = 220
+const COLLAPSED_WIDTH = 68
 const STORAGE_KEY = 'salaryhub.sidebarCollapsed'
 const NAVY = '#0b1f4d'
 
@@ -48,7 +48,7 @@ const initials = (name = '') =>
     .map((part) => part[0].toUpperCase())
     .join('') || 'HR'
 
-export const NAV_ITEMS = [
+const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: <DashboardIcon />, title: 'Dashboard', subtitle: 'Overview of your workforce and compensation' },
   { to: '/employees', label: 'Employees', icon: <PeopleIcon />, title: 'Employees', subtitle: 'Find, add and manage employees and their salaries' },
   { to: '/analytics', label: 'Salary Analytics', icon: <InsightsIcon />, title: 'Salary Analytics', subtitle: 'How the organisation pays, by department and country' },

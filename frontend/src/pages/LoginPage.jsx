@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { Alert, Box, Button, Card, CircularProgress, Typography, TextField } from '@mui/material'
 import PaymentsIcon from '@mui/icons-material/Payments'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 
 function LoginPage() {
   const { user, login } = useAuth()

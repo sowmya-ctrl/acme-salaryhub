@@ -18,18 +18,23 @@ import { formatMoney } from '../utils/format'
 /** Min / avg / max current net salary by department or country, always per currency. */
 function SalaryAnalytics() {
   const [groupBy, setGroupBy] = useState('department')
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  // The result remembers which grouping it answers, so "loading" is derived: it is true
+  // whenever the latest result is for a different grouping than the one selected.
+  const [result, setResult] = useState({ groupBy: null, rows: [], error: '' })
 
   useEffect(() => {
-    setLoading(true)
+    let ignore = false
     api
       .get('/analytics/salary-summary', { params: { group_by: groupBy } })
-      .then(({ data }) => setRows(data))
-      .catch(() => setError('Unable to load salary analytics.'))
-      .finally(() => setLoading(false))
+      .then(({ data }) => !ignore && setResult({ groupBy, rows: data, error: '' }))
+      .catch(() => !ignore && setResult({ groupBy, rows: [], error: 'Unable to load salary analytics.' }))
+    return () => {
+      ignore = true
+    }
   }, [groupBy])
+
+  const { rows, error } = result
+  const loading = result.groupBy !== groupBy
 
   return (
     <Card elevation={2}>

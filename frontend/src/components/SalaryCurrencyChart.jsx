@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import ChartCard from './ChartCard'
-import { PALETTE } from './DepartmentChart'
+import { PALETTE } from './chartColors'
 import { formatCompactMoney, formatMoney } from '../utils/format'
 
 const compact = (n) => new Intl.NumberFormat('en-US', { notation: 'compact' }).format(n)

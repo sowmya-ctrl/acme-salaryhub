@@ -37,7 +37,8 @@ function EmployeeFormDialog({ employee, departments, countries, onClose, onSaved
     try {
       const { basic_salary, ...fields } = form
       if (editing) {
-        const { joining_date, ...editable } = fields // joining date is not editable
+        const editable = { ...fields }
+        delete editable.joining_date // joining date is not editable
         await api.patch(`/employees/${employee.id}`, editable)
       } else {
         const country = countries.find((c) => c.id === Number(fields.country_id))

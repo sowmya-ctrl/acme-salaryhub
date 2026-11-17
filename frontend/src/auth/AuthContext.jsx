@@ -1,8 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import api from '../services/api'
+import { AuthContext } from './context'
 import { AUTH_EXPIRED_EVENT, clearAuth, loadAuth, saveAuth } from './storage'
-
-const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => loadAuth()?.user ?? null)
@@ -27,10 +26,4 @@ export function AuthProvider({ children }) {
 
   const value = useMemo(() => ({ user, login, logout }), [user, login, logout])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error('useAuth must be used inside <AuthProvider>')
-  return context
 }

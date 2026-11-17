@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from './AuthContext'
+import { useAuth } from './useAuth'
 
 /** Route guard: anything nested inside needs a logged-in user. */
 function RequireAuth() {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Alert,
   Box,
@@ -33,15 +33,22 @@ function SalaryDialog({ employee, onClose }) {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
-  const load = useCallback(async () => {
-    const { data } = await api.get(`/employees/${employee.id}/salaries`)
-    setHistory(data)
-    setForm((f) => ({ ...f, currency: f.currency || data[0]?.currency || '' }))
-  }, [employee.id])
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
-    load().catch(() => setError('Unable to load salary history.'))
-  }, [load])
+    let ignore = false
+    api
+      .get(`/employees/${employee.id}/salaries`)
+      .then(({ data }) => {
+        if (ignore) return
+        setHistory(data)
+        setForm((f) => ({ ...f, currency: f.currency || data[0]?.currency || '' }))
+      })
+      .catch(() => !ignore && setError('Unable to load salary history.'))
+    return () => {
+      ignore = true
+    }
+  }, [employee.id, reloadKey])
 
   const set = (field) => (event) => setForm({ ...form, [field]: event.target.value })
 
@@ -55,7 +62,7 @@ function SalaryDialog({ employee, onClose }) {
         currency: form.currency.toUpperCase(),
       })
       setForm({ ...emptyForm, currency: form.currency })
-      await load()
+      setReloadKey((k) => k + 1)
     } catch (err) {
       const detail = err.response?.data?.detail
       setError(typeof detail === 'string' ? detail : 'Please check the values entered.')

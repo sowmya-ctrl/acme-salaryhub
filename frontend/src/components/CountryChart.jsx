@@ -1,7 +1,7 @@
 import { Box, LinearProgress, Typography } from '@mui/material'
 import PublicIcon from '@mui/icons-material/Public'
 import ChartCard from './ChartCard'
-import { PALETTE } from './DepartmentChart'
+import { PALETTE } from './chartColors'
 
 /** Ranked countries with headcount, share of total and a proportional bar. */
 function CountryChart({ data }) {

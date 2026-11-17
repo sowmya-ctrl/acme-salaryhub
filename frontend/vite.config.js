@@ -7,6 +7,13 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    testTimeout: 15000, // MUI dropdowns are slow to render in jsdom, especially under coverage
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/**/*.test.{js,jsx}', 'src/main.jsx'],
+      reporter: ['text-summary', 'text'],
+    },
   },
   server: {
     proxy: {

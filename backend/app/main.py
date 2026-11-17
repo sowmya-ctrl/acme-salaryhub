@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 from app import models
 from app.database import Base, engine
@@ -10,6 +10,8 @@ from app.routers.salaries import router as salary_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.reference import router as reference_router
 from app.routers.analytics import router as analytics_router
+from app.routers.auth import router as auth_router
+from app.services.auth import get_current_user
 
 app = FastAPI(
     title = "ACME SalaryHub API",
@@ -18,11 +20,15 @@ app = FastAPI(
 )
 
 Base.metadata.create_all(bind=engine)
-app.include_router(employee_router)
-app.include_router(salary_router)
-app.include_router(dashboard_router)
-app.include_router(reference_router)
-app.include_router(analytics_router)
+app.include_router(auth_router)  # login is public; /me guards itself
+
+# Everything that touches HR data requires a valid token.
+protected = [Depends(get_current_user)]
+app.include_router(employee_router, dependencies=protected)
+app.include_router(salary_router, dependencies=protected)
+app.include_router(dashboard_router, dependencies=protected)
+app.include_router(reference_router, dependencies=protected)
+app.include_router(analytics_router, dependencies=protected)
 
 
 @app.get("/api/status")

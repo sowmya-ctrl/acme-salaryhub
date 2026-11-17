@@ -7,6 +7,8 @@ import os
 from datetime import date
 
 os.environ["DATABASE_URL"] = "sqlite://"
+os.environ["BCRYPT_ROUNDS"] = "4"  # fast hashing in tests
+os.environ["JWT_SECRET"] = "test-secret-not-for-production"
 
 import pytest
 from fastapi.testclient import TestClient
@@ -16,7 +18,8 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app.models import Country, Department, Employee, SalaryRecord
+from app.models import Country, Department, Employee, SalaryRecord, User
+from app.services.auth import get_current_user, hash_password
 
 
 @pytest.fixture()
@@ -36,13 +39,36 @@ def db_session():
 
 
 @pytest.fixture()
-def client(db_session):
+def raw_client(db_session):
+    """Unauthenticated client: exercises the real auth guard."""
+
     def override_get_db():
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def client(raw_client):
+    """Client already logged in as an HR manager, for the feature tests."""
+    app.dependency_overrides[get_current_user] = lambda: User(
+        id=1, email="hr@acme.example", full_name="HR Manager", is_active=True
+    )
+    return raw_client
+
+
+@pytest.fixture()
+def hr_user(db_session):
+    user = User(
+        email="hr@acme.example",
+        full_name="Hannah Roe",
+        password_hash=hash_password("correct-horse"),
+    )
+    db_session.add(user)
+    db_session.commit()
+    return user
 
 
 @pytest.fixture()

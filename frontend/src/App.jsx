@@ -4,6 +4,7 @@ import DepartmentChart from './components/DepartmentChart'
 import CountryChart from './components/CountryChart'
 import SalaryCurrencyChart  from './components/SalaryCurrencyChart'
 import EmployeeTable from './components/EmployeeTable'
+import SalaryAnalytics from './components/SalaryAnalytics'
 
 import {
   AppBar,
@@ -87,7 +88,7 @@ function App() {
         ) : (
                     <Grid container spacing={3}>
             {cards.map((card) => (
-              <Grid item xs={12} md={4} key={card.title}>
+              <Grid size={{ xs: 12, md: 4 }} key={card.title}>
                 <Card elevation={2}>
                   <CardContent>
                     <Box display="flex" alignItems="center" gap={2}>
@@ -106,17 +107,20 @@ function App() {
               </Grid>
             ))}
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <DepartmentChart />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <CountryChart />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <SalaryCurrencyChart />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
+              <SalaryAnalytics />
+            </Grid>
+            <Grid size={12}>
               <EmployeeTable />
             </Grid>
           </Grid>

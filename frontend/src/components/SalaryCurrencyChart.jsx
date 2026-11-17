@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, Typography } from '@mui/material'
+import ChartCard from './ChartCard'
 import {
   BarChart,
   Bar,
@@ -12,6 +12,8 @@ import {
   CartesianGrid,
 } from 'recharts'
 import api from '../services/api'
+
+const compact = (n) => new Intl.NumberFormat('en-US', { notation: 'compact' }).format(n)
 
 function SalaryCurrencyChart() {
   const [data, setData] = useState([])
@@ -30,28 +32,20 @@ function SalaryCurrencyChart() {
   }, [])
 
   return (
-    <Card elevation={2}>
-      <CardContent>
-        <Typography variant="h6" fontWeight="bold" mb={2}>
-          Salary Expenditure by Currency
-        </Typography>
-
-        <Typography variant="body2" color="text.secondary" mb={2}>
-          Net salary totals are shown separately in their original currencies.
-        </Typography>
-
-        <ResponsiveContainer width="100%" height={350}>
+    <ChartCard
+      title="Salary Expenditure by Currency"
+      subtitle="Net totals in original currencies; never combined"
+    >
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="currency" />
-            <YAxis />
+            <YAxis tickFormatter={compact} width={50} />
             <Tooltip />
-            <Legend />
             <Bar dataKey="total_salary" name="Total Salary" fill="#2e7d32" />
           </BarChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    </ChartCard>
   )
 }
 

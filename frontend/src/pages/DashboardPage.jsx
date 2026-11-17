@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material'
+import { Box, Card, CardContent, CircularProgress, Typography } from '@mui/material'
 import PeopleIcon from '@mui/icons-material/People'
 import PersonIcon from '@mui/icons-material/Person'
 import PersonOffIcon from '@mui/icons-material/PersonOff'
@@ -31,39 +31,44 @@ function DashboardPage() {
   ]
 
   return (
-    <>
-      <Typography color="text.secondary" mb={3}>
-        Workforce overview
-      </Typography>
-      <Grid container spacing={3}>
-        {cards.map((card) => (
-          <Grid size={{ xs: 12, md: 4 }} key={card.title}>
-            <Card elevation={2}>
-              <CardContent>
-                <Box display="flex" alignItems="center" gap={2}>
-                  {card.icon}
-                  <Box>
-                    <Typography color="text.secondary">{card.title}</Typography>
-                    <Typography variant="h4" fontWeight="bold">
-                      {card.value.toLocaleString()}
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <DepartmentChart />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <CountryChart />
-        </Grid>
-        <Grid size={12}>
-          <SalaryCurrencyChart />
-        </Grid>
-      </Grid>
-    </>
+    // One screen, no page scroll on desktop: KPI row + a chart row that takes the remaining height.
+    <Box
+      sx={{
+        height: { md: '100%' },
+        minHeight: { xs: 'auto', md: 420 },
+        display: 'grid',
+        gap: 2,
+        gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+        gridTemplateRows: { xs: 'auto', md: 'auto minmax(0, 1fr)' },
+      }}
+    >
+      {cards.map((card) => (
+        <Card elevation={2} key={card.title}>
+          <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+            <Box display="flex" alignItems="center" gap={2}>
+              {card.icon}
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  {card.title}
+                </Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {card.value.toLocaleString()}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      ))}
+      <Box sx={{ minHeight: { xs: 300, md: 0 } }}>
+        <DepartmentChart />
+      </Box>
+      <Box sx={{ minHeight: { xs: 300, md: 0 } }}>
+        <CountryChart />
+      </Box>
+      <Box sx={{ minHeight: { xs: 300, md: 0 } }}>
+        <SalaryCurrencyChart />
+      </Box>
+    </Box>
   )
 }
 

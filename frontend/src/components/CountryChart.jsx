@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, Typography } from '@mui/material'
+import ChartCard from './ChartCard'
 import {
   PieChart,
   Pie,
@@ -30,13 +30,8 @@ function CountryChart() {
   }, [])
 
   return (
-    <Card elevation={2}>
-      <CardContent>
-        <Typography variant="h6" fontWeight="bold" mb={2}>
-          Employees by Country
-        </Typography>
-
-        <ResponsiveContainer width="100%" height={320}>
+    <ChartCard title="Employees by Country">
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
@@ -44,12 +39,11 @@ function CountryChart() {
               nameKey="country"
               cx="50%"
               cy="50%"
-              outerRadius={105}
-              label
+              outerRadius="70%"
             >
               {data.map((entry, index) => (
                 <Cell
-                  key={entry.code}
+                  key={entry.country_code}
                   fill={COLORS[index % COLORS.length]}
                 />
               ))}
@@ -58,8 +52,7 @@ function CountryChart() {
             <Legend />
           </PieChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    </ChartCard>
   )
 }
 

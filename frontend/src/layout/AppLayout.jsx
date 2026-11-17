@@ -104,9 +104,14 @@ function AppLayout() {
         </Drawer>
       </Box>
 
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, minWidth: 0 }}>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, minWidth: 0, height: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', p: { xs: 2, md: 3 } }}
+      >
         <Toolbar />
-        <Outlet />
+        <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   )

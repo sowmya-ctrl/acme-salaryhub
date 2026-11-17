@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, Typography } from '@mui/material'
+import ChartCard from './ChartCard'
 import {
   BarChart,
   Bar,
@@ -11,6 +11,8 @@ import {
   CartesianGrid,
 } from 'recharts'
 import api from '../services/api'
+
+const compact = (n) => new Intl.NumberFormat('en-US', { notation: 'compact' }).format(n)
 
 function DepartmentChart() {
   const [data, setData] = useState([])
@@ -29,23 +31,17 @@ function DepartmentChart() {
   }, [])
 
   return (
-    <Card elevation={2}>
-      <CardContent>
-        <Typography variant="h6" fontWeight="bold" mb={2}>
-          Employees by Department
-        </Typography>
-
-        <ResponsiveContainer width="100%" height={320}>
+    <ChartCard title="Employees by Department">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="department" />
-            <YAxis />
+            <YAxis tickFormatter={compact} width={45} />
             <Tooltip />
             <Bar dataKey="employee_count" fill="#1976d2" />
           </BarChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    </ChartCard>
   )
 }
 

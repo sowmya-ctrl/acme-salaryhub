@@ -14,11 +14,11 @@ class Employee(Base):
     email = Column(String(255), unique=True, nullable=False)
     designation = Column(String(100), nullable=True)
 
-    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
-    country_id = Column(Integer, ForeignKey("countries.id"), nullable=False)
+    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False, index=True)
+    country_id = Column(Integer, ForeignKey("countries.id"), nullable=False, index=True)
 
     joining_date = Column(Date, nullable=False)
-    status = Column(String(20), default="active", nullable=False)
+    status = Column(String(20), default="active", nullable=False, index=True)
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

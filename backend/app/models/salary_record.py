@@ -22,6 +22,7 @@ class SalaryRecord(Base):
         Integer,
         ForeignKey("employees.id"),
         nullable=False,
+        index=True,
     )
 
     basic_salary = Column(Numeric(12, 2), nullable=False)

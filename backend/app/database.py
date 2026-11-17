@@ -13,6 +13,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE URL not configured")
 
+# Hosted Postgres providers hand out "postgres://" / "postgresql://" URLs;
+# normalise them to the psycopg (v3) driver we ship.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+
 #create postgresql engine
 engine = create_engine(
     DATABASE_URL,

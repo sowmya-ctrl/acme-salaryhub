@@ -1,4 +1,8 @@
+import os
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from app import models
 from app.database import Base, engine
 from app.routers.employees import router as employee_router
@@ -21,7 +25,7 @@ app.include_router(reference_router)
 app.include_router(analytics_router)
 
 
-@app.get("/")
+@app.get("/api/status")
 def home():
     return {
         "message":"Welecome to ACME SalaryHub API",
@@ -34,3 +38,9 @@ def health_check():
         "status" : "healty",
         "application" : "ACME SalaryHub",
     }
+
+
+# In production the built React app is served by the same process (single deploy unit).
+FRONTEND_DIST = Path(os.getenv("FRONTEND_DIST", Path(__file__).resolve().parents[2] / "frontend" / "dist"))
+if FRONTEND_DIST.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")

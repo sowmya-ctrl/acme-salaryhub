@@ -22,7 +22,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import InsightsIcon from '@mui/icons-material/Insights'
 import PaymentsIcon from '@mui/icons-material/Payments'
 
-export const DRAWER_WIDTH = 240
+export const DRAWER_WIDTH = 220
 const NAVY = '#0b1f4d'
 
 export const NAV_ITEMS = [
@@ -47,9 +47,9 @@ function AppLayout() {
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: NAVY, color: '#fff' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 3, py: 3 }}>
-        <PaymentsIcon fontSize="large" />
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2.5, py: 2 }}>
+        <PaymentsIcon />
+        <Typography variant="body1" sx={{ fontWeight: 700, lineHeight: 1.15 }}>
           ACME
           <br />
           SalaryHub
@@ -68,19 +68,20 @@ function AppLayout() {
             sx={{
               borderRadius: 2,
               mb: 0.5,
+              py: 0.75,
               color: 'rgba(255,255,255,0.8)',
               '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
               '&.Mui-selected, &.Mui-selected:hover': { bgcolor: '#2563eb', color: '#fff' },
             }}
           >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{item.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>{item.icon}</ListItemIcon>
             <ListItemText primary={item.label} />
           </ListItemButton>
         ))}
       </List>
 
       <Box sx={{ mt: 'auto', p: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
-        <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.18)', width: 36, height: 36, fontSize: 14 }}>HR</Avatar>
+        <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.18)', width: 32, height: 32, fontSize: 12 }}>HR</Avatar>
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             HR Manager
@@ -101,7 +102,7 @@ function AppLayout() {
         elevation={0}
         sx={{ width: { md: `calc(100% - ${DRAWER_WIDTH}px)` }, ml: { md: `${DRAWER_WIDTH}px` }, bgcolor: '#f3f6fb' }}
       >
-        <Toolbar>
+        <Toolbar variant="dense">
           <IconButton
             edge="start"
             aria-label="open navigation"
@@ -110,7 +111,7 @@ function AppLayout() {
           >
             <MenuIcon />
           </IconButton>
-          <Box component="form" onSubmit={search} sx={{ width: '100%', maxWidth: 520 }}>
+          <Box component="form" onSubmit={search} sx={{ width: '100%', maxWidth: 440 }}>
             <TextField
               fullWidth
               size="small"
@@ -154,14 +155,16 @@ function AppLayout() {
 
       <Box
         component="main"
-        sx={{ flexGrow: 1, minWidth: 0, height: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', p: { xs: 2, md: 3 } }}
+        sx={{ flexGrow: 1, minWidth: 0, height: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', p: { xs: 2, md: 2 } }}
       >
-        <Toolbar />
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: '#0f1f45' }}>
+        <Toolbar variant="dense" />
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 700, color: '#0f1f45', lineHeight: 1.25 }}>
             {current.title}
           </Typography>
-          <Typography color="text.secondary">{current.subtitle}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {current.subtitle}
+          </Typography>
         </Box>
         <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
           <Outlet />

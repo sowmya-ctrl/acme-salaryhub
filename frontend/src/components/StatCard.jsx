@@ -5,12 +5,12 @@ function StatCard({ icon, color, title, value, caption }) {
   return (
     <Card
       elevation={0}
-      sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, border: '1px solid #e6ebf3', borderRadius: 3 }}
+      sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 1.5, height: '100%', boxSizing: 'border-box', border: '1px solid #e6ebf3', borderRadius: 3 }}
     >
       <Box
         sx={{
-          width: 48,
-          height: 48,
+          width: 40,
+          height: 40,
           borderRadius: 2,
           flexShrink: 0,
           display: 'grid',
@@ -22,14 +22,14 @@ function StatCard({ icon, color, title, value, caption }) {
         {icon}
       </Box>
       <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="caption" color="text.secondary">
           {title}
         </Typography>
-        <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.25 }} noWrap>
           {value}
         </Typography>
         {caption && (
-          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
+          <Typography variant="caption" color="text.secondary" noWrap title={caption} sx={{ display: 'block' }}>
             {caption}
           </Typography>
         )}

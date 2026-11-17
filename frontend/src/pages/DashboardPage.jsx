@@ -51,9 +51,9 @@ function DashboardPage() {
     <Box
       sx={{
         height: { md: '100%' },
-        minHeight: { md: 560 },
+        minHeight: { md: 420 },
         display: 'grid',
-        gap: 2,
+        gap: 1.5,
         gridTemplateColumns: { xs: '1fr', md: 'repeat(12, 1fr)' },
         gridTemplateRows: { xs: 'auto', md: 'auto minmax(0, 1fr) minmax(0, 1fr)' },
       }}

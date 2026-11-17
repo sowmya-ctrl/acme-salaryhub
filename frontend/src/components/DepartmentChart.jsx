@@ -43,7 +43,7 @@ function DepartmentChart({ data }) {
             }}
           >
             <Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
                 {total.toLocaleString()}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -56,7 +56,7 @@ function DepartmentChart({ data }) {
         <Box
           component="ul"
           aria-label="Department legend"
-          sx={{ listStyle: 'none', m: 0, p: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}
+          sx={{ listStyle: 'none', m: 0, p: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}
         >
           {sorted.map((d, i) => (
             <Box component="li" key={d.department} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

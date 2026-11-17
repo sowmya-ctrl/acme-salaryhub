@@ -10,14 +10,14 @@ function ChartCard({ title, icon, subtitle, children }) {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
-        p: 2,
+        p: 1.5,
         border: '1px solid #e6ebf3',
         borderRadius: 3,
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#1e3a8a' }}>
         {icon}
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
           {title}
         </Typography>
       </Box>

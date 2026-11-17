@@ -22,6 +22,8 @@ function mockApi({ employees = [employee], total = 1 } = {}) {
   })
 }
 
+const inactive = { ...employee, id: 2, employee_code: 'ACME00002', status: 'inactive' }
+
 beforeEach(() => vi.clearAllMocks())
 
 it('renders employees with department and country names', async () => {
@@ -97,4 +99,17 @@ it('does not deactivate when the confirmation is cancelled', async () => {
   await userEvent.click(await screen.findByLabelText('deactivate ACME00001'))
 
   expect(api.delete).not.toHaveBeenCalled()
+})
+
+it('offers Activate (not Deactivate) for an inactive employee and reactivates via PATCH', async () => {
+  mockApi({ employees: [inactive] })
+  api.patch.mockResolvedValue({ data: {} })
+  render(<EmployeeTable />)
+
+  const activateButton = await screen.findByLabelText('activate ACME00002')
+  expect(screen.queryByLabelText('deactivate ACME00002')).toBeNull()
+
+  await userEvent.click(activateButton)
+
+  await waitFor(() => expect(api.patch).toHaveBeenCalledWith('/employees/2', { status: 'active' }))
 })

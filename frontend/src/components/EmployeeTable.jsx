@@ -25,6 +25,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import EditIcon from '@mui/icons-material/Edit'
 import PaymentsIcon from '@mui/icons-material/Payments'
 import PersonOffIcon from '@mui/icons-material/PersonOff'
+import HowToRegIcon from '@mui/icons-material/HowToReg'
 import api from '../services/api'
 import EmployeeFormDialog from './EmployeeFormDialog'
 import SalaryDialog from './SalaryDialog'
@@ -106,6 +107,11 @@ function EmployeeTable({ initialSearch = '', openAdd = false }) {
   const deactivate = async (employee) => {
     if (!window.confirm(`Deactivate ${employee.first_name} ${employee.last_name}? Salary history is kept.`)) return
     await api.delete(`/employees/${employee.id}`)
+    reload()
+  }
+
+  const activate = async (employee) => {
+    await api.patch(`/employees/${employee.id}`, { status: 'active' })
     reload()
   }
 
@@ -225,10 +231,16 @@ function EmployeeTable({ initialSearch = '', openAdd = false }) {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        {employee.status === 'active' && (
+                        {employee.status === 'active' ? (
                           <Tooltip title="Deactivate">
                             <IconButton aria-label={`deactivate ${employee.employee_code}`} onClick={() => deactivate(employee)}>
                               <PersonOffIcon />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          <Tooltip title="Activate">
+                            <IconButton aria-label={`activate ${employee.employee_code}`} color="success" onClick={() => activate(employee)}>
+                              <HowToRegIcon />
                             </IconButton>
                           </Tooltip>
                         )}

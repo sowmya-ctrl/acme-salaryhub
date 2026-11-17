@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app import models
 from app.database import Base, engine
 from app.routers.employees import router as employee_router
+from app.routers.salaries import router as salary_router
 
 app = FastAPI(
     title = "ACME SalaryHub API",
@@ -11,6 +12,7 @@ app = FastAPI(
 
 Base.metadata.create_all(bind=engine)
 app.include_router(employee_router)
+app.include_router(salary_router)
 
 @app.get("/")
 def home():

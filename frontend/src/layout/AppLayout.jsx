@@ -18,6 +18,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import InsightsIcon from '@mui/icons-material/Insights'
 import PaymentsIcon from '@mui/icons-material/Payments'
+import AssessmentIcon from '@mui/icons-material/Assessment'
 
 export const DRAWER_WIDTH = 240
 
@@ -25,6 +26,7 @@ export const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: <DashboardIcon />, title: 'HR Dashboard' },
   { to: '/employees', label: 'Employees', icon: <PeopleIcon />, title: 'Employees' },
   { to: '/analytics', label: 'Salary Analytics', icon: <InsightsIcon />, title: 'Salary Analytics' },
+  { to: '/reports', label: 'Reports', icon: <AssessmentIcon />, title: 'Employee Reports' },
 ]
 
 function AppLayout() {

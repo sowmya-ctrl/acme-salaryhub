@@ -2,17 +2,31 @@
 
 Salary management for an organisation of ~10,000 employees across several countries. Built for an HR manager who needs to maintain salary data and answer questions about how the organisation pays people.
 
+| | |
+|---|---|
+| **Live app** | _add the Render URL after deploying_ |
+| **Demo video** | _add the video link after recording_ |
+| **Login for reviewers** | `hr@acme.example` (password shared privately) |
+
 * **Requirements and scope decisions:** [docs/requirements.md](docs/requirements.md)
 * **Architecture diagrams (system, data model, salary revision, login):** [docs/architecture.md](docs/architecture.md)
 * **Planning, product decisions and how the solution evolved:** [docs/design-notes.md](docs/design-notes.md)
 * **The prompts used with the AI assistant, with outcomes and corrections:** [docs/prompts.md](docs/prompts.md)
 * **How AI was used, trade-offs, performance:** [docs/ai-usage.md](docs/ai-usage.md)
 
+## What it does
+* **Login / logout** for the HR manager; every data endpoint requires a token.
+* **Dashboard** on one screen: headcount, salary expenditure per currency, department and country distribution, quick actions.
+* **Employees:** search by name, ID or email; filter by department, country and status (applied on **Search**); add, edit, deactivate and re-activate; export the filtered list to CSV.
+* **Salaries:** full history per employee. A raise closes the current record and adds a new one, so nothing is ever overwritten.
+* **Salary analytics:** min / average / max / total *current* pay by department or country, always split by currency (currencies are never added together).
+* **10,000 seeded employees** across 5 countries and 5 departments.
+
 ## Stack
 FastAPI, SQLAlchemy, PostgreSQL, React (Vite), Material UI, Recharts, Pytest, Vitest + React Testing Library.
 
 ## Run locally
-Prerequisites: Python 3.12, Node 20+, a PostgreSQL database.
+Prerequisites: Python 3.12, Node 20.19+ (or 22.12+), a PostgreSQL database.
 
 ```bash
 # backend
@@ -40,6 +54,13 @@ Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your environment. There is no 
 * Set `JWT_SECRET`. If it is missing the server generates a temporary one, and everyone is logged out on each restart.
 * Logout removes the token in the browser. Tokens are stateless, so the server cannot cancel one early (see [docs/ai-usage.md](docs/ai-usage.md)).
 
+### Or run everything in Docker
+```bash
+docker build -t salaryhub .
+docker run -p 8000:8000 -e DATABASE_URL=postgresql+psycopg://user:password@host:5432/db   -e JWT_SECRET=<random> -e ADMIN_PASSWORD=<8+ chars> -e SEED_ON_START=true salaryhub
+# open http://localhost:8000  (the API serves the built UI)
+```
+
 ## Tests
 ```bash
 cd backend && python -m pytest -q      # in-memory SQLite, no database needed, a few seconds
@@ -63,6 +84,8 @@ One Docker image serves the API and the built UI (`Dockerfile`). `render.yaml` i
 | `POST /api/auth/login`, `GET /api/auth/me` | Sign in / current user. **Every other `/api/*` endpoint requires `Authorization: Bearer <token>`** |
 | `GET /api/employees/` | Search, filter, paginate |
 | `GET /api/employees/count` | Count for the same filters |
+| `GET /api/employees/{id}` | One employee |
+| `GET /api/departments`, `GET /api/countries` | Lists for the filter dropdowns |
 | `POST /api/employees/`, `PATCH /{id}`, `DELETE /{id}` | Create, update, deactivate (history preserved) |
 | `GET/POST /api/employees/{id}/salaries` | Salary history; add a revision |
 | `GET /api/employees/export` | CSV of the filtered view |

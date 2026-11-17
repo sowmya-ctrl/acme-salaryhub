@@ -35,18 +35,20 @@ const EMPTY = { search: '', department_id: '', country_id: '', status: '' }
  * Employee directory. Filters are edited in a draft and only applied when the user
  * clicks Search (or presses Enter); paging and CSV export reuse the applied filters.
  */
-function EmployeeTable() {
+function EmployeeTable({ initialSearch = '', openAdd = false }) {
+  const initial = { ...EMPTY, search: initialSearch }
   const [employees, setEmployees] = useState([])
   const [departments, setDepartments] = useState([])
   const [countries, setCountries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [draft, setDraft] = useState(EMPTY)
-  const [applied, setApplied] = useState(EMPTY)
+  const [draft, setDraft] = useState(initial)
+  const [applied, setApplied] = useState(initial)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [totalEmployees, setTotalEmployees] = useState(0)
-  const [formFor, setFormFor] = useState(undefined) // undefined = closed, null = new, object = edit
+  // undefined = closed, null = new employee, object = editing that employee
+  const [formFor, setFormFor] = useState(openAdd ? null : undefined)
   const [salaryFor, setSalaryFor] = useState(null)
   const [reloadKey, setReloadKey] = useState(0)
 

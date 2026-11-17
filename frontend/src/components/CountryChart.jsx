@@ -1,57 +1,45 @@
-
-import { useEffect, useState } from 'react'
+import { Box, LinearProgress, Typography } from '@mui/material'
+import PublicIcon from '@mui/icons-material/Public'
 import ChartCard from './ChartCard'
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts'
-import api from '../services/api'
+import { PALETTE } from './DepartmentChart'
 
-const COLORS = ['#1976d2', '#2e7d32', '#ed6c02', '#9c27b0', '#d32f2f']
-
-function CountryChart() {
-  const [data, setData] = useState([])
-
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await api.get('/dashboard/countries')
-        setData(response.data)
-      } catch (error) {
-        console.error('Failed to load country analytics:', error)
-      }
-    }
-
-    fetchCountries()
-  }, [])
+/** Ranked countries with headcount, share of total and a proportional bar. */
+function CountryChart({ data }) {
+  const total = data.reduce((sum, c) => sum + c.employee_count, 0)
+  const sorted = [...data].sort((a, b) => b.employee_count - a.employee_count)
 
   return (
-    <ChartCard title="Employees by Country">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="employee_count"
-              nameKey="country"
-              cx="50%"
-              cy="50%"
-              outerRadius="70%"
-            >
-              {data.map((entry, index) => (
-                <Cell
-                  key={entry.country_code}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+    <ChartCard title="Country Distribution" icon={<PublicIcon fontSize="small" />}>
+      <Box
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-around', overflow: 'auto' }}
+      >
+        {sorted.map((c, i) => {
+          const pct = total ? (c.employee_count / total) * 100 : 0
+          return (
+            <Box key={c.country_code}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {c.country}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {c.employee_count.toLocaleString()} · {Math.round(pct)}%
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={pct}
+                aria-label={`${c.country} share`}
+                sx={{
+                  height: 8,
+                  borderRadius: 4,
+                  bgcolor: '#eef2f8',
+                  '& .MuiLinearProgress-bar': { bgcolor: PALETTE[i % PALETTE.length], borderRadius: 4 },
+                }}
+              />
+            </Box>
+          )
+        })}
+      </Box>
     </ChartCard>
   )
 }

@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
+from datetime import date
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
-from app.models import Employee,Department,Country
+from app.models import Employee,Department,Country, SalaryRecord
 
 
 
@@ -80,4 +82,38 @@ def get_country_distribution(db: Session = Depends(get_db)):
             "employee_count": count,
         }
         for name, code, count in results
+    ]
+
+@router.get("/salary-by-currency")
+def get_salary_by_currency(db: Session = Depends(get_db)):
+    results = (
+        db.query(
+            SalaryRecord.currency,
+            func.sum(
+                SalaryRecord.basic_salary
+                + SalaryRecord.allowances
+                + SalaryRecord.bonus
+                - SalaryRecord.deductions
+            ).label("total_salary"),
+            func.count(SalaryRecord.id).label("employee_count"),
+        )
+        .filter(
+            SalaryRecord.effective_from <= date.today(),
+            or_(
+                SalaryRecord.effective_to.is_(None),
+                SalaryRecord.effective_to >= date.today(),
+            ),
+        )
+        .group_by(SalaryRecord.currency)
+        .order_by(SalaryRecord.currency)
+        .all()
+    )
+
+    return [
+        {
+            "currency": currency,
+            "total_salary": total_salary,
+            "employee_count": employee_count,
+        }
+        for currency, total_salary, employee_count in results
     ]

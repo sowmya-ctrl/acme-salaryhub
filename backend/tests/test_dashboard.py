@@ -55,3 +55,29 @@ def test_country_distribution():
     }
 
     assert country_codes == {"CAN", "DEU", "IND", "GBR", "USA"}
+
+def test_salary_by_currency():
+    response = client.get("/api/dashboard/salary-by-currency")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 5
+
+    total_employees = sum(
+        item["employee_count"]
+        for item in data
+    )
+
+    assert total_employees == 10000
+
+    currencies = {
+        item["currency"]
+        for item in data
+    }
+
+    assert currencies == {"CAD", "EUR", "GBP", "INR", "USD"}
+
+    for item in data:
+        assert float(item["total_salary"]) > 0

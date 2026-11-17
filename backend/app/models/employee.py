@@ -31,3 +31,11 @@ class Employee(Base):
         back_populates="employee",
         cascade="all, delete-orphan",
     )
+
+    @property
+    def department_name(self):
+        return self.department.name if self.department else None
+
+    @property
+    def country_name(self):
+        return self.country.name if self.country else None

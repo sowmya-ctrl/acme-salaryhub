@@ -1,83 +1,36 @@
-from fastapi.testclient import TestClient
+def test_dashboard_overview(client, seeded):
+    data = client.get("/api/dashboard/overview").json()
 
-from app.main import app
-
-client = TestClient(app)
-
-
-def test_dashboard_overview():
-    response = client.get("/api/dashboard/overview")
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["total_employees"] == 10000
-    assert data["active_employees"] + data["inactive_employees"] == 10000
+    assert data == {"total_employees": 4, "active_employees": 3, "inactive_employees": 1}
 
 
-def test_department_distribution():
-    response = client.get("/api/dashboard/departments")
+def test_department_distribution(client, seeded):
+    data = client.get("/api/dashboard/departments").json()
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert len(data) == 5
-
-    total_employees = sum(
-        department["employee_count"]
-        for department in data
-    )
-
-    assert total_employees == 10000
-
-
-def test_country_distribution():
-    response = client.get("/api/dashboard/countries")
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert len(data) == 5
-
-    total_employees = sum(
-        country["employee_count"]
-        for country in data
-    )
-
-    assert total_employees == 10000
-
-    country_codes = {
-        country["country_code"]
-        for country in data
+    assert {d["department"]: d["employee_count"] for d in data} == {
+        "Engineering": 2,
+        "Human Resources": 2,
     }
 
-    assert country_codes == {"CAN", "DEU", "IND", "GBR", "USA"}
 
-def test_salary_by_currency():
-    response = client.get("/api/dashboard/salary-by-currency")
+def test_country_distribution(client, seeded):
+    data = client.get("/api/dashboard/countries").json()
 
-    assert response.status_code == 200
+    assert {c["country_code"]: c["employee_count"] for c in data} == {"IND": 2, "USA": 2}
 
-    data = response.json()
 
-    assert len(data) == 5
+def test_salary_by_currency_never_mixes_currencies(client, seeded):
+    data = {r["currency"]: r for r in client.get("/api/dashboard/salary-by-currency").json()}
 
-    total_employees = sum(
-        item["employee_count"]
-        for item in data
-    )
+    assert set(data) == {"INR", "USD"}
+    assert float(data["INR"]["total_salary"]) == 110000 + 60000  # 100k+20k-10k, 60k
+    assert float(data["USD"]["total_salary"]) == 200000
+    assert data["USD"]["employee_count"] == 2
 
-    assert total_employees == 10000
 
-    currencies = {
-        item["currency"]
-        for item in data
-    }
+def test_reference_lists(client, seeded):
+    departments = client.get("/api/departments").json()
+    countries = client.get("/api/countries").json()
 
-    assert currencies == {"CAD", "EUR", "GBP", "INR", "USD"}
-
-    for item in data:
-        assert float(item["total_salary"]) > 0
+    assert [d["name"] for d in departments] == ["Engineering", "Human Resources"]
+    assert {c["code"]: c["currency_code"] for c in countries} == {"IND": "INR", "USA": "USD"}

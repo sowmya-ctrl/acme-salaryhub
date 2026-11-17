@@ -1,108 +1,69 @@
-from fastapi.testclient import TestClient
-
-from app.main import app
-from datetime import date, timedelta
-client = TestClient(app)
+from datetime import date
 
 
-def test_get_employee_salaries():
+def revision(**overrides):
+    body = {
+        "basic_salary": 120000,
+        "allowances": 15000,
+        "bonus": 10000,
+        "deductions": 5000,
+        "currency": "INR",
+        "effective_from": "2024-01-01",
+    }
+    return {**body, **overrides}
+
+
+def test_get_employee_salaries(client, seeded):
     response = client.get("/api/employees/1/salaries")
 
     assert response.status_code == 200
-
     salaries = response.json()
-
-    assert isinstance(salaries, list)
-    assert len(salaries) >= 1
-
-    salary = salaries[0]
-
-    assert salary["employee_id"] == 1
-    assert "basic_salary" in salary
-    assert "allowances" in salary
-    assert "bonus" in salary
-    assert "deductions" in salary
-    assert "currency" in salary
+    assert len(salaries) == 1
+    assert salaries[0]["employee_id"] == 1
+    assert float(salaries[0]["basic_salary"]) == 100000
 
 
-def test_get_salaries_for_non_existing_employee():
-    response = client.get("/api/employees/999999/salaries")
+def test_salaries_for_unknown_employee_404(client, seeded):
+    response = client.get("/api/employees/999/salaries")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Employee not found"
 
 
-# def test_create_salary_revision():
-#     response = client.post(
-#         "/api/employees/1/salaries",
-#         json={
-#             "basic_salary": 100000,
-#             "allowances": 15000,
-#             "bonus": 10000,
-#             "deductions": 5000,
-#             "currency": "INR",
-#             "effective_from": "2027-01-01",
-#         },
-#     )
-#     print("API response:", response.json())
-
-#     assert response.status_code == 201
-
-#     data = response.json()
-
-#     assert data["employee_id"] == 1
-#     assert float(data["basic_salary"]) == 100000
-#     assert data["currency"] == "INR"
-#     assert data["effective_to"] is None
-
-def test_create_salary_revision():
-    history_response = client.get("/api/employees/1/salaries")
-    assert history_response.status_code == 200
-
-    salary_history = history_response.json()
-
-    latest_salary = max(
-        salary_history,
-        key=lambda salary: salary["effective_from"],
-    )
-
-    latest_date = date.fromisoformat(
-        latest_salary["effective_from"]
-    )
-
-    next_date = latest_date + timedelta(days=1)
-
-    response = client.post(
-        "/api/employees/1/salaries",
-        json={
-            "basic_salary": 100000,
-            "allowances": 15000,
-            "bonus": 10000,
-            "deductions": 5000,
-            "currency": latest_salary["currency"],
-            "effective_from": next_date.isoformat(),
-        },
-    )
+def test_revision_closes_previous_record_and_preserves_history(client, seeded):
+    response = client.post("/api/employees/1/salaries", json=revision())
 
     assert response.status_code == 201
+    assert response.json()["effective_to"] is None
 
-    data = response.json()
+    history = client.get("/api/employees/1/salaries").json()
+    assert len(history) == 2  # nothing overwritten
+    newest, oldest = history  # ordered newest first
+    assert float(newest["basic_salary"]) == 120000
+    assert float(oldest["basic_salary"]) == 100000
+    assert oldest["effective_to"] == "2023-12-31"  # day before the revision
 
-    assert data["employee_id"] == 1
-    assert float(data["basic_salary"]) == 100000
-    assert data["currency"] == latest_salary["currency"]
-    assert data["effective_to"] is None
-def test_salary_revision_for_invalid_employee():
-    response = client.post(
-        "/api/employees/999999/salaries",
-        json={
-            "basic_salary": 100000,
-            "allowances": 15000,
-            "bonus": 10000,
-            "deductions": 5000,
-            "currency": "INR",
-            "effective_from": "2027-01-01",
-        },
-    )
 
-    assert response.status_code == 404
+def test_revision_must_be_later_than_current(client, seeded):
+    response = client.post("/api/employees/1/salaries", json=revision(effective_from="2020-01-01"))
+
+    assert response.status_code == 400
+
+
+def test_revision_validation(client, seeded):
+    assert client.post("/api/employees/1/salaries", json=revision(basic_salary=0)).status_code == 422
+    assert client.post("/api/employees/1/salaries", json=revision(currency="RUPEES")).status_code == 422
+    assert client.post("/api/employees/1/salaries", json=revision(bonus=-1)).status_code == 422
+
+
+def test_revision_for_unknown_employee_404(client, seeded):
+    assert client.post("/api/employees/999/salaries", json=revision()).status_code == 404
+
+
+def test_future_dated_revision_is_not_counted_as_current(client, seeded):
+    future = date.today().replace(year=date.today().year + 1).isoformat()
+    client.post("/api/employees/1/salaries", json=revision(basic_salary=999999, effective_from=future))
+
+    summary = client.get("/api/analytics/salary-summary?group_by=country&currency=INR").json()
+    india = next(r for r in summary if r["group"] == "India")
+    assert india["max_salary"] == 110000  # still the old record

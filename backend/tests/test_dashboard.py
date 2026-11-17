@@ -31,3 +31,27 @@ def test_department_distribution():
     )
 
     assert total_employees == 10000
+
+
+def test_country_distribution():
+    response = client.get("/api/dashboard/countries")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 5
+
+    total_employees = sum(
+        country["employee_count"]
+        for country in data
+    )
+
+    assert total_employees == 10000
+
+    country_codes = {
+        country["country_code"]
+        for country in data
+    }
+
+    assert country_codes == {"CAN", "DEU", "IND", "GBR", "USA"}

@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
-from app.models import Employee,Department
+from app.models import Employee,Department,Country
+
 
 
 router = APIRouter(
@@ -56,4 +57,27 @@ def get_department_distribution(
             "employee_count": count,
         }
         for name, count in results
+    ]
+
+@router.get("/countries")
+def get_country_distribution(db: Session = Depends(get_db)):
+    results = (
+        db.query(
+            Country.name,
+            Country.code,
+            func.count(Employee.id).label("employee_count"),
+        )
+        .outerjoin(Employee, Employee.country_id == Country.id)
+        .group_by(Country.id, Country.name, Country.code)
+        .order_by(Country.name)
+        .all()
+    )
+
+    return [
+        {
+            "country": name,
+            "country_code": code,
+            "employee_count": count,
+        }
+        for name, code, count in results
     ]

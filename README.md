@@ -5,7 +5,7 @@ Salary management for an organisation of ~10,000 employees across several countr
 | | |
 |---|---|
 | **Live app** | _add the Render URL after deploying_ |
-| **Demo video** | _add the video link after recording_ |
+| **Demo video** | [Watch the demo (Google Drive)](https://drive.google.com/file/d/17S5__sO0BwHDrP6VjoYNNmpUWX02MIMI/view?usp=sharing) |
 | **Login for reviewers** | `hr@acme.example` (password shared privately) |
 
 * **Requirements and scope decisions:** [docs/requirements.md](docs/requirements.md)

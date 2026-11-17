@@ -23,3 +23,7 @@ build/
 
 # Logs
 *.log
+
+# Large demo video: hosted on Google Drive, linked from README
+demo.mp4
+*.mp4

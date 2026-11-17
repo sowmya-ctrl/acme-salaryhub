@@ -4,9 +4,9 @@ Salary management for an organisation of ~10,000 employees across several countr
 
 | | |
 |---|---|
-| **Live app** | _add the Render URL after deploying_ |
+| **Live app** | Not hosted publicly: the free hosts I tried required payment details. A `render.yaml` blueprint and `Dockerfile` are included; to run it yourself use the one-command setup below |
 | **Demo video** | [Watch the demo (Google Drive)](https://drive.google.com/file/d/17S5__sO0BwHDrP6VjoYNNmpUWX02MIMI/view?usp=sharing) |
-| **Login for reviewers** | `hr@acme.example` (password shared privately) |
+| **Login (Docker Compose run)** | `hr@acme.example` / `Demo-Only-Pass-123` (local demo only) |
 
 * **Requirements and scope decisions:** [docs/requirements.md](docs/requirements.md)
 * **Architecture diagrams (system, data model, salary revision, login):** [docs/architecture.md](docs/architecture.md)
@@ -34,7 +34,17 @@ Salary management for an organisation of ~10,000 employees across several countr
 ## Stack
 FastAPI, SQLAlchemy, PostgreSQL, React (Vite), Material UI, Recharts, Pytest, Vitest + React Testing Library.
 
-## Run locally
+## Quickest way to run it (one command)
+Needs only Docker. It starts PostgreSQL and the app, loads the 10,000 employees on first start (about 1-3 minutes) and creates the login.
+
+```bash
+docker compose up --build
+# then open http://localhost:8000
+# sign in:  hr@acme.example  /  Demo-Only-Pass-123   (local demo credentials from docker-compose.yml)
+```
+Stop with `Ctrl+C`; `docker compose down -v` also deletes the data.
+
+## Run locally without Docker
 Prerequisites: Python 3.12, Node 20.19+ (or 22.12+), a PostgreSQL database.
 
 ```bash
@@ -63,7 +73,7 @@ Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your environment. There is no 
 * Set `JWT_SECRET`. If it is missing the server generates a temporary one, and everyone is logged out on each restart.
 * Logout removes the token in the browser. Tokens are stateless, so the server cannot cancel one early (see [docs/ai-usage.md](docs/ai-usage.md)).
 
-### Or run everything in Docker
+### Or run the single image against your own database
 ```bash
 docker build -t salaryhub .
 docker run -p 8000:8000 -e DATABASE_URL=postgresql+psycopg://user:password@host:5432/db   -e JWT_SECRET=<random> -e ADMIN_PASSWORD=<8+ chars> -e SEED_ON_START=true salaryhub

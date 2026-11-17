@@ -51,6 +51,7 @@ These changed because the first version was wrong for the user, not because the 
 * **Real-data check:** after tests passed, endpoints were exercised against the seeded 10,000-row Postgres, because small fixtures cannot reveal performance or data-shape problems.
 
 ## 6. Honest limitations
+* **Not hosted at a public URL.** The free hosts that fit this stack asked for payment details. The deliverable is instead runnable with one command (`docker compose up --build`); a Dockerfile and Render blueprint are included but were not exercised on a live host.
 * Logout is client-side: tokens are stateless and cannot be revoked early.
 * No login rate limiting, password reset, or user-management screen.
 * Analytics describe *today's* pay only; the data model supports history, the UI does not expose it yet.

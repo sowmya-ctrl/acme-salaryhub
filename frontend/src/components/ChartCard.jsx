@@ -10,6 +10,8 @@ function ChartCard({ title, icon, subtitle, children }) {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
+        overflow: 'hidden',
+        boxSizing: 'border-box',
         p: 1.5,
         border: '1px solid #e6ebf3',
         borderRadius: 3,
@@ -26,7 +28,7 @@ function ChartCard({ title, icon, subtitle, children }) {
           {subtitle}
         </Typography>
       )}
-      <Box sx={{ flex: 1, minHeight: 0, mt: 1 }}>{children}</Box>
+      <Box sx={{ flex: 1, minHeight: 0, mt: 1, overflow: 'hidden' }}>{children}</Box>
     </Card>
   )
 }

@@ -37,6 +37,7 @@ function AppLayout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const current = NAV_ITEMS.find((item) => item.to === pathname) ?? NAV_ITEMS[0]
+  const isDashboard = current.to === '/'
 
   const search = (event) => {
     event.preventDefault()
@@ -166,7 +167,8 @@ function AppLayout() {
             {current.subtitle}
           </Typography>
         </Box>
-        <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        {/* The dashboard is laid out to fit the window exactly, so it never needs a scrollbar on desktop. */}
+        <Box sx={{ flex: 1, minHeight: 0, overflow: { xs: 'auto', md: isDashboard ? 'hidden' : 'auto' } }}>
           <Outlet />
         </Box>
       </Box>
